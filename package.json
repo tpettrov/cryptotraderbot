@@ -1,0 +1,16 @@
+{
+  "name": "cryptotraderbot",
+  "version": "1.0.0",
+  "description": "Simple kraken trading bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Anton Petrov",
+  "license": "MIT",
+  "dependencies": {
+    "got": "^8.1.0",
+    "qs": "^6.5.1"
+  }
+}
