@@ -12,5 +12,8 @@
   "dependencies": {
     "got": "^8.1.0",
     "qs": "^6.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.15.1"
   }
 }

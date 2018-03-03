@@ -2,46 +2,55 @@ const qs = require('qs');
 const crypto = require('crypto');
 const got = require('got');
 
-function buildMessageSignature(path, request, secret, nonce) {
+module.exports = {
 
-    const message = qs.stringify(request);
-    const secret_buffer = new Buffer(secret, 'base64');
-    const hash = new crypto.createHash('sha256');
-    const hmac = new crypto.createHmac('sha512', secret_buffer);
-    const hash_digest = hash.update(nonce + message).digest('binary');
-    const hmac_digest = hmac.update(path + hash_digest, 'binary').digest('base64');
+    isEmptyObject: (obj) => {
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                return false;
+            }
+        }
+        return true;
+    },
 
-    return hmac_digest;
-}
+    buildMessageSignature: (path, request, secret, nonce) => {
+        const message = qs.stringify(request);
+        const secret_buffer = new Buffer(secret, 'base64');
+        const hash = new crypto.createHash('sha256');
+        const hmac = new crypto.createHmac('sha512', secret_buffer);
+        const hash_digest = hash.update(nonce + message).digest('binary');
+        const hmac_digest = hmac.update(path + hash_digest, 'binary').digest('base64');
 
-const rawRequest = async (url, headers, data, timeout) => {
+        return hmac_digest;
+    },
 
-    headers['User-Agent'] = 'Kraken NodeJs API Trading Bot';
+    rawRequest: async (url, headers, data, timeout) => {
 
-    const options = {headers, timeout};
+        headers['User-Agent'] = 'Kraken NodeJs API Trading Bot';
 
-    Object.assign(options, {
-        method: 'POST',
-        body: qs.stringify(data),
-    });
+        const options = {headers, timeout};
 
-    const {body} = await got(url, options);
-    const response = JSON.parse(body);
+        Object.assign(options, {
+            method: 'POST',
+            body: qs.stringify(data),
+        });
 
-    if (response.error && response.error.length) {
-        const error = response.error
-            .filter((e) => e.startsWith('E'))
-            .map((e) => e.substr(1));
+        const {body} = await got(url, options);
+        const response = JSON.parse(body);
 
-        if (!error.length) {
-            throw new Error("Kraken API returned an unknown error");
+        if (response.error && response.error.length) {
+            const error = response.error
+                .filter((e) => e.startsWith('E'))
+                .map((e) => e.substr(1));
+
+            if (!error.length) {
+                throw new Error("Kraken API returned an unknown error");
+            }
+
+            throw new Error(error.join(', '));
         }
 
-        throw new Error(error.join(', '));
+        return response.result;
     }
 
-    return response.result;
 };
-
-module.exports.messageSignatureBuilder = buildMessageSignature;
-module.exports.rawRequest = rawRequest;

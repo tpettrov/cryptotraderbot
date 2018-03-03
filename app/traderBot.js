@@ -1,7 +1,6 @@
-const helpers = require('../app/helpers');
 const defaults = require('../config/options').address;
 const methods = require('../config/options').methods;
-const getMessageSignature = require('./helpers').messageSignatureBuilder;
+const getMessageSignature = require('./helpers').buildMessageSignature;
 const rawRequest = require('./helpers').rawRequest;
 
 class TraderBot {
@@ -27,7 +26,6 @@ class TraderBot {
             callback = params;
             params   = {};
         }
-
         if(methods.public.includes(method)) {
             return this.publicMethod(method, params, callback);
         }
@@ -48,7 +46,6 @@ class TraderBot {
      */
     publicMethod(method, params, callback) {
         params = params || {};
-
         // Default params to empty object
         if(typeof params === 'function') {
             callback = params;
